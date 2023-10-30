@@ -52,13 +52,17 @@ var plugin
 var settings
 var parent_stylebox
 
+var hint
+var hint_string:String
+
 var init_prop_container
 var last_type_v := TYPE_FLOAT
 
-
-func display(collection, plugin : EditorPlugin):
+func display(collection, plugin : EditorPlugin, _hint, _hint_string):
 	self.plugin = plugin
 	self.stored_collection = collection
+	hint = _hint
+	hint_string = _hint_string
 	settings = plugin.get_editor_interface().get_editor_settings()
 	for x in get_children():
 		x.free()
@@ -151,13 +155,13 @@ func create_item_control_for_type(type, initial_value, container, is_key) -> Con
 		TYPE_PACKED_VECTOR2_ARRAY, TYPE_PACKED_VECTOR3_ARRAY:
 			# This big boy will also handle the distinction.
 			var script_file = "res://addons/dictionary_inspector/elements/special_buttons/collection_header_button.gd"
-			result = load(script_file).new(initial_value, plugin)
+			result = load(script_file).new(initial_value, plugin, hint, hint_string)
 			result.connect("bottom_control_available", _on_collection_control_available.bind(result))
 
 		_:
 			result = Label.new()
 			result.text = "Not Supported"
-	
+
 	connect_control(result, type, container, is_key)
 	result.size_flags_horizontal = SIZE_EXPAND_FILL
 	return result
@@ -218,7 +222,7 @@ func get_default_for_type(type, is_key = false):
 
 func connect_control(control, type, container, is_key):
 	var signal_name := "value_changed"
-	
+
 	if control is ColorPickerButton:
 		signal_name = "color_changed"
 

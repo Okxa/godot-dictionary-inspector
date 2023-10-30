@@ -32,6 +32,6 @@ func _parse_property(object, type, path, hint, hint_text, usage, wide) -> bool:
 				if hint == PROPERTY_HINT_ENUM || hint_text.left(hint_text.find(":")).split("/").has(str(PROPERTY_HINT_ENUM)):
 					return false
 
-			add_property_editor(path, load("res://addons/dictionary_inspector/inspector_property.gd").new(object[path], plugin))
+			add_property_editor(path, load("res://addons/dictionary_inspector/inspector_property.gd").new(object[path], plugin, hint, hint_text))
 			return true
 	return false

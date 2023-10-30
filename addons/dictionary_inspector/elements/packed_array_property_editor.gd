@@ -80,7 +80,7 @@ func _on_add_button_pressed():
 func _on_item_deleted(control):
 	stored_collection.remove_at(get_container_index(control))
 	emit_signal("value_changed", stored_collection)
-	display(stored_collection, plugin)
+	display(stored_collection, plugin, hint, hint_string)
 
 
 func _on_item_moved(from_container, to_container):
@@ -96,5 +96,5 @@ func _on_item_moved(from_container, to_container):
 		if x is HBoxContainer && x.get_child(0) is DictionaryInspectorArrayIndex:
 			x.get_child(0).value = i
 			i += 1
-	
+
 	emit_signal("value_changed", stored_collection)

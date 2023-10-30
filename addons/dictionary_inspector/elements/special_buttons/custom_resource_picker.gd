@@ -6,13 +6,16 @@ const setting_name = "addons/dictionary_inspector/resource_types"
 @onready var button : Button = get_child(1)
 
 var plugin
+var hint
+var hint_string:String
 
-
-func _init(resource, plugin):
+func _init(resource, plugin, _hint = PROPERTY_HINT_NONE, _hint_string = ""):
 	editable = true
 	toggle_mode = false
 	edited_resource = resource
 	self.plugin = plugin
+	hint = _hint
+	hint_string = _hint_string
 
 
 func _ready():
@@ -20,9 +23,12 @@ func _ready():
 
 
 func get_resource_base_type(resource):
+	# if hint has been set to hint typed array, parse type from hint_string
+	if hint == PROPERTY_HINT_TYPE_STRING || hint == PROPERTY_HINT_ARRAY_TYPE:
+		return hint_string.split(":")[-1]
 	if resource == null:
 		return "Resource"
-	
+
 	var type = resource.get_class()
 	if type == "Resource":
 		# Custom classes return the base type,
@@ -41,7 +47,7 @@ func get_resource_base_type(resource):
 			var source = resource.get_script().source_code
 			var found_extends = source.find("extends ") + 8
 			type = source.substr(found_extends, source.find("\n", found_extends + 1) - found_extends)
-	
+
 	var parent = ClassDB.get_parent_class(type)
 	if type == "":
 		return "Resource"
@@ -80,7 +86,7 @@ func _set_create_options(menu):
 
 		menu.add_icon_item(icon, "New " + x, i + 100)
 		i += 1
-	
+
 	menu.add_separator()
 	menu.add_icon_item(get_theme_icon("Variant", "EditorIcons"), "Change Collection's Resource type", 90001)
 	menu.add_icon_item(get_theme_icon("Object", "EditorIcons"), "Reset Base Type", 90002)
@@ -91,7 +97,7 @@ func _handle_menu_selected(id):
 	if id == 90001:
 		for x in get_children():
 			x.hide()
-		
+
 		var edit = LineEdit.new()
 		add_child(edit)
 		edit.placeholder_text = "Enter class name..."
@@ -101,7 +107,7 @@ func _handle_menu_selected(id):
 
 	elif id == 90002:
 		_on_classname_submitted("Resource")
-	
+
 	elif id >= 100 && id < get_allowed_types().size() + 100:
 		var new_res = ClassDB.instantiate(get_allowed_types()[id - 100])
 		emit_signal("resource_changed", new_res)
@@ -124,7 +130,7 @@ func _the_cooler_handle_menu_selected(id):
 # func get_saved_type():
 #   if !ProjectSettings.has_setting(setting_name):
 #     return
-	
+
 #   var dict = ProjectSettings.get_setting(setting_name)
 #   return dict.get(path_to_property, "Resource")
 
@@ -135,16 +141,16 @@ func _on_classname_submitted(new_text, node = null):
 
 	for x in get_children():
 		x.show()
-	
+
 	if !ClassDB.class_exists(new_text):
 		new_text = "Resource"
-	
+
 	var property_boxes = get_node("../..").get_children()
 	for x in property_boxes:
 		for y in x.get_children():
 			if y is EditorResourcePicker:
 				y.set_base_type(new_text)
-	
+
 	# TODO: allow creation of new resources of changed type
 	# If Base Type is changed, can't create new instances
 	if new_text != "Resource":
@@ -155,4 +161,4 @@ func _on_classname_submitted(new_text, node = null):
 
 	# var setting_dict = ProjectSettings.get_setting(setting_name)
 	# setting_dict[path_to_property] = new_text
-	# ProjectSettings.set_setting(setting_name, new_text)  
+	# ProjectSettings.set_setting(setting_name, new_text)

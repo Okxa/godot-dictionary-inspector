@@ -56,6 +56,8 @@ signal bottom_control_available(control)
 
 var stored_collection
 var plugin
+var hint
+var hint_string
 
 var color_rect
 var open_button
@@ -64,9 +66,11 @@ var collection_editor
 var stylebox
 
 
-func _init(collection, plugin):
+func _init(collection, plugin, _hint = PROPERTY_HINT_NONE, _hint_string = ""):
 	stored_collection = collection
 	self.plugin = plugin
+	hint = _hint
+	hint_string = _hint_string
 
 
 func _ready():
@@ -88,7 +92,7 @@ func _ready():
 	if stored_collection is Object || stored_collection == null:
 		await get_tree().process_frame
 		var picker_script = preload("res://addons/dictionary_inspector/elements/special_buttons/custom_resource_picker.gd")
-		var picker = picker_script.new(stored_collection, plugin)
+		var picker = picker_script.new(stored_collection, plugin, hint, hint_string)
 		replace_by(picker)
 		picker.size_flags_horizontal = SIZE_EXPAND_FILL
 		picker.add_child(self)
@@ -165,7 +169,7 @@ func _on_pressed():
 		color_rect.visible = flat
 
 	if flat:
-		collection_editor.display(stored_collection, plugin)
+		collection_editor.display(stored_collection, plugin, hint, hint_string)
 
 
 func get_recursion_style():
@@ -190,8 +194,20 @@ func _on_value_changed(value):
 				"Array" if value is Array else
 				"PackedArray"
 			),
-			str(typenames.keys()[get_type_dict_index(value.get_typed_builtin())]) + ", " if value is Array && value.is_typed() else "",
+			get_array_type_text(value) if value is Array else "",
 			value.size(),
 		]
 	stored_collection = value
 	emit_signal("value_changed", value)
+
+
+func get_array_type_text(arr):
+	if arr.is_typed():
+		var arr_type = arr.get_typed_builtin()
+		if arr_type == TYPE_OBJECT: # if array has objects
+			# if object is further typed via hint_string
+			if hint == PROPERTY_HINT_TYPE_STRING || hint == PROPERTY_HINT_ARRAY_TYPE:
+				return hint_string.split(":")[-1] + ", "
+		return str(typenames.keys()[get_type_dict_index(arr_type)]) + ", " # otherwise return type
+	else:
+		return ""

@@ -20,7 +20,7 @@ func drop_data(position, data):
 	if data.has("resource"):
 		_on_add_button_pressed()
 		update_variant(stored_collection.size() - 1, data["resource"], false)
-	
+
 	for x in data["files"]:
 		_on_add_button_pressed()
 		update_variant(stored_collection.size() - 1, load(x), false)
@@ -54,7 +54,7 @@ func update_variant(key, value, is_rename = false):
 			var arr_t = stored_collection.get_typed_builtin()
 			if typeof(value) != arr_t:
 				# try to cast the value to the array type
-				# needed when assigning to typed arrays, because for example Slider inherited controls 
+				# needed when assigning to typed arrays, because for example Slider inherited controls
 				# have value as float and engine prints error (the value seems to be still inserted and automatically cast to type of array)
 				stored_collection[key] = convert(value, arr_t)
 		else:
@@ -74,7 +74,7 @@ func _on_property_control_type_changed(type, control, container, is_key = false)
 		if type == 0:
 			_on_item_deleted(container)
 			return
-	
+
 	var value = get_default_for_type(type)
 	var new_editor = create_item_control_for_type(type, value, container, is_key)
 	control.get_parent().get_child(control.get_index() + 1).free()
