@@ -133,7 +133,7 @@ func _drop_data(at_position : Vector2, data):
 			stored_collection[load(x)] = load(x)
 
 	if bottom_control != null:
-		collection_editor.display(stored_collection, plugin)
+		collection_editor.display(stored_collection, plugin, hint, hint_string)
 
 	_on_value_changed(stored_collection)
 	return true

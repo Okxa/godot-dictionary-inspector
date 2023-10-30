@@ -57,6 +57,10 @@ func update_variant(key, value, is_rename = false):
 				# needed when assigning to typed arrays, because for example Slider inherited controls
 				# have value as float and engine prints error (the value seems to be still inserted and automatically cast to type of array)
 				stored_collection[key] = convert(value, arr_t)
+			# if array type is object we check if the type of value inherits from the type that the array is
+			# > get_typed_class_name() Returns a class name of a typed Array of type @GlobalScope.TYPE_OBJECT.
+			elif arr_t == TYPE_OBJECT && ClassDB.is_parent_class(value.get_class(), stored_collection.get_typed_class_name()):
+				stored_collection[key] = value
 		else:
 			stored_collection[key] = value
 	emit_signal("value_changed", stored_collection)
